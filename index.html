@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Gallery</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .gallery-container {
+      height: 100vh;
+      overflow-y: scroll;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .gallery {
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .gallery img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+      transition: transform 0.3s ease-in-out;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .gallery img:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+
+<div class="gallery-container">
+  <div class="gallery">
+    <img src="image1.png" alt="Image 1">
+    <img src="image2.png" alt="Image 2">
+    <img src="image3.png" alt="Image 3">
+    <!-- Add more images as needed -->
+  </div>
+</div>
+
+</body>
+</html>
