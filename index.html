@@ -8,11 +8,11 @@
         #gallery {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 20px;
         }
         .gallery-item {
-            width: 550px;
-            height: 550px;
+            width: 300px;
+            height: 300px;
             overflow: hidden;
             position: relative;
         }
@@ -32,7 +32,6 @@
     function fetchImages() {
         const galleryContainer = document.getElementById('gallery');
 
-        // Get all files in the current folder
         fetch('.')
             .then(response => response.text())
             .then(html => {
@@ -45,7 +44,12 @@
                 images.forEach(image => {
                     const galleryItem = document.createElement('div');
                     galleryItem.className = 'gallery-item';
-                    galleryItem.innerHTML = `<img src="${image}" alt="Image">`;
+
+                    const img = new Image();
+                    img.src = image;
+                    img.alt = 'Image';
+
+                    galleryItem.appendChild(img);
                     galleryContainer.appendChild(galleryItem);
                 });
             })
