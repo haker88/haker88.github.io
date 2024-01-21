@@ -3,39 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Infinite Scroll Gallery</title>
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
+      overflow: hidden;
     }
 
     #gallery-container {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE 11 */
+    }
+
+    #gallery-container::-webkit-scrollbar {
+      display: none; /* Safari and Chrome */
     }
 
     .gallery-item {
-      margin: 10px;
-      overflow: hidden;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      flex: 0 0 auto;
+      margin-right: 10px;
+      max-width: 100vw; /* Ensure each image doesn't exceed the viewport width */
     }
 
     .gallery-item img {
       width: 100%;
+      height: auto;
+      max-height: 80vh; /* Limit the image height to 80% of the viewport height */
     }
   </style>
+  <title>Scrollable Image Gallery</title>
 </head>
 <body>
 
   <div id="gallery-container"></div>
 
   <script>
-    const galleryContainer = document.getElementById('gallery-container');
-
-    // Function to fetch and display images
     async function fetchAndDisplayImages() {
       try {
         const response = await fetch('./');
@@ -44,36 +49,30 @@
         // Use a regex to find all PNG images in the HTML response
         const regex = /<a href="(.*?\.png)"/g;
         let match;
+        const galleryContainer = document.getElementById('gallery-container');
+
         while ((match = regex.exec(html)) !== null) {
           const imagePath = match[1];
-          const imgElement = document.createElement('img');
-          imgElement.src = imagePath;
-          imgElement.alt = 'Gallery Image';
+          
+          // Exclude the index.html file from the gallery
+          if (imagePath !== 'index.html') {
+            const galleryItem = document.createElement('div');
+            galleryItem.classList.add('gallery-item');
 
-          const galleryItem = document.createElement('div');
-          galleryItem.classList.add('gallery-item');
-          galleryItem.appendChild(imgElement);
+            const imgElement = document.createElement('img');
+            imgElement.src = imagePath;
+            imgElement.alt = 'Gallery Image';
 
-          galleryContainer.appendChild(galleryItem);
+            galleryItem.appendChild(imgElement);
+            galleryContainer.appendChild(galleryItem);
+          }
         }
       } catch (error) {
         console.error('Error fetching and displaying images:', error);
       }
     }
 
-    // Function to check if the user has scrolled to the bottom of the page
-    function isBottomOfPage() {
-      return window.innerHeight + window.scrollY >= document.body.offsetHeight;
-    }
-
-    // Event listener for scrolling
-    window.addEventListener('scroll', () => {
-      if (isBottomOfPage()) {
-        fetchAndDisplayImages();
-      }
-    });
-
-    // Initial fetch to load the first set of images
+    // Initial fetch to load the images
     fetchAndDisplayImages();
   </script>
 </body>
