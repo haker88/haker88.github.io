@@ -1,67 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scrollable Image Gallery</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-        #gallery-container {
-            display: flex;
-            overflow-x: auto;
-            scroll-snap-type: x mandatory;
-            white-space: nowrap;
-        }
-        .gallery-item {
-            scroll-snap-align: center;
-            flex: 0 0 auto;
-            margin: 10px;
-        }
-        .gallery-item img {
-            max-width: 100%;
-            max-height: 100vh;
-            object-fit: contain;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infinite Scroll Gallery</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    #gallery-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .gallery-item {
+      margin: 10px;
+      overflow: hidden;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .gallery-item img {
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
 
-<div id="gallery-container"></div>
+  <div id="gallery-container"></div>
 
-<script>
-    function fetchAndDisplayImages() {
-        const galleryContainer = document.getElementById('gallery-container');
+  <script>
+    const galleryContainer = document.getElementById('gallery-container');
 
-        fetch('.')
-            .then(response => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const images = Array.from(doc.querySelectorAll('a[href]'))
-                    .filter(link => link.href.match(/\.(png)$/i))
-                    .map(link => link.href);
+    // Function to fetch and display images
+    async function fetchAndDisplayImages() {
+      try {
+        const response = await fetch('./');
+        const html = await response.text();
 
-                images.forEach(image => {
-                    const galleryItem = document.createElement('div');
-                    galleryItem.className = 'gallery-item';
+        // Use a regex to find all PNG images in the HTML response
+        const regex = /<a href="(.*?\.png)"/g;
+        let match;
+        while ((match = regex.exec(html)) !== null) {
+          const imagePath = match[1];
+          const imgElement = document.createElement('img');
+          imgElement.src = imagePath;
+          imgElement.alt = 'Gallery Image';
 
-                    const img = new Image();
-                    img.src = image;
-                    img.alt = 'Image';
+          const galleryItem = document.createElement('div');
+          galleryItem.classList.add('gallery-item');
+          galleryItem.appendChild(imgElement);
 
-                    galleryItem.appendChild(img);
-                    galleryContainer.appendChild(galleryItem);
-                });
-            })
-            .catch(error => console.error('Error fetching images:', error));
+          galleryContainer.appendChild(galleryItem);
+        }
+      } catch (error) {
+        console.error('Error fetching and displaying images:', error);
+      }
     }
 
-    fetchAndDisplayImages();
-</script>
+    // Function to check if the user has scrolled to the bottom of the page
+    function isBottomOfPage() {
+      return window.innerHeight + window.scrollY >= document.body.offsetHeight;
+    }
 
+    // Event listener for scrolling
+    window.addEventListener('scroll', () => {
+      if (isBottomOfPage()) {
+        fetchAndDisplayImages();
+      }
+    });
+
+    // Initial fetch to load the first set of images
+    fetchAndDisplayImages();
+  </script>
 </body>
 </html>
